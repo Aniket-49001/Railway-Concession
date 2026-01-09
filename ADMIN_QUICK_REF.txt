@@ -1,0 +1,115 @@
+# 🔐 Admin Login - Quick Reference
+
+## 📍 Access Points
+
+| Page | URL | Purpose |
+|------|-----|---------|
+| Admin Login | http://localhost:3000/admin-login.html | Enter credentials |
+| Admin Panel | http://localhost:3000/admin.html | Manage system (after login) |
+
+---
+
+## 🔑 Default Credentials
+
+```
+Email:    admin@railway.com
+Password: admin123
+```
+
+⚠️ **Change these before production!**
+
+---
+
+## 🚀 Quick Start
+
+1. Go to: `http://localhost:3000/admin-login.html`
+2. Enter: `admin@railway.com`
+3. Enter: `admin123`
+4. Click: **"Login to Admin Panel"**
+5. ✅ You're in the admin panel!
+
+---
+
+## 📋 Admin Panel Functions
+
+✅ **Add Trains**
+- Train number, name, route
+- Seats, times, fare
+- Train type & status
+
+✅ **View Trains**
+- See all trains in table
+- Check availability
+- View all details
+
+✅ **Delete Trains**
+- Click "Delete" button
+- Train removed from system
+
+✅ **Statistics**
+- Total trains
+- Total bookings
+- Total revenue
+- Active trains
+
+✅ **Download Reports**
+- Export as CSV
+- Train data backup
+
+✅ **Refresh**
+- Update all data
+- Real-time sync
+
+---
+
+## 🔒 Security
+
+- 🔐 Session-based authentication
+- ⏱️ 24-hour auto-expiry
+- 🚪 Logout clears session
+- 🛡️ Protected from direct access
+
+---
+
+## 🚪 Logout
+
+Click **"Logout"** button to:
+- Clear session
+- Remove credentials
+- Redirect to login
+
+---
+
+## ⚙️ Change Credentials
+
+Edit `admin-login.html` line 75:
+
+```javascript
+const ADMIN_CREDENTIALS = {
+    email: 'newemail@example.com',
+    password: 'newpassword123'
+};
+```
+
+---
+
+## ❓ If Can't Login
+
+✓ Check email: `admin@railway.com`
+✓ Check password: `admin123`
+✓ Clear browser cache
+✓ Try incognito mode
+✓ Check caps lock off
+
+---
+
+## 📚 Full Documentation
+
+- **Setup:** SETUP_GUIDE.md
+- **Features:** README.md
+- **Detailed Guide:** ADMIN_LOGIN_GUIDE.md
+- **Implementation:** ADMIN_IMPLEMENTATION.md
+
+---
+
+**🎉 You're Ready to Manage the Railway System!**

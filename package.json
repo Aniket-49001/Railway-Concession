@@ -1,37 +1,18 @@
 {
-  "name": "railway-concession",
+  "name": "sehat-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "bankend/index.js",
+  "description": "Local Sehat demo with signup/login",
+  "main": "server.js",
   "scripts": {
-    "start": "nodemon backend/index.js"
+    "start": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Aniket-49001/Railway-Concession.git"
-  },
-  "keywords": [],
-  "author": "",
-  "type": "module",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Aniket-49001/Railway-Concession/issues"
-  },
-  "homepage": "https://github.com/Aniket-49001/Railway-Concession#readme",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cookie-parser": "^1.4.7",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "crypto": "^1.0.1",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "mailtrap": "^4.3.0",
-    "mogoose": "^0.0.1-security",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "mongodb": "^7.0.0",
-    "mongoose": "^8.19.3"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.11"
+    "mongoose": "^6.10.0"
   }
 }

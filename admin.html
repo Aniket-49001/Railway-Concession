@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Railway Management</title>
+    <style>
+        :root {
+            --primary: #ff5e00;
+            --secondary: #f3e412;
+            --dark: #1a1a1a;
+            --light: #f5f5f5;
+            --success: #4caf50;
+            --danger: #f44336;
+            --warning: #ff9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: var(--dark);
+        }
+
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e54d00;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #ddd;
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: #ccc;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .message.success {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .message.error {
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--light);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge.on-time {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+        }
+
+        .status-badge.delayed {
+            background: rgba(255, 152, 0, 0.2);
+            color: var(--warning);
+        }
+
+        .status-badge.cancelled {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--danger);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff9800 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚂 Railway Management - Admin Panel</h1>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <h3>Total Trains</h3>
+                <div class="value" id="totalTrains">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Bookings</h3>
+                <div class="value" id="totalBookings">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="value" id="totalRevenue">₹0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Trains</h3>
+                <div class="value" id="activeTrains">0</div>
+            </div>
+        </div>
+
+        <!-- Add Train Section -->
+        <div class="section">
+            <h2>➕ Add New Train</h2>
+            <div id="addTrainMessage"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Train Number *</label>
+                    <input type="text" id="trainNumber" placeholder="e.g., 12001">
+                </div>
+                <div class="form-group">
+                    <label>Train Name *</label>
+                    <input type="text" id="trainName" placeholder="e.g., Rajdhani Express">
+                </div>
+                <div class="form-group">
+                    <label>Source Station *</label>
+                    <input type="text" id="source" placeholder="e.g., Delhi Central">
+                </div>
+                <div class="form-group">
+                    <label>Destination Station *</label>
+                    <input type="text" id="destination" placeholder="e.g., Mumbai Central">
+                </div>
+                <div class="form-group">
+                    <label>Total Seats *</label>
+                    <input type="number" id="totalSeats" placeholder="e.g., 400" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Departure Time *</label>
+                    <input type="time" id="departureTime">
+                </div>
+                <div class="form-group">
+                    <label>Arrival Time *</label>
+                    <input type="time" id="arrivalTime">
+                </div>
+                <div class="form-group">
+                    <label>Fare (₹) *</label>
+                    <input type="number" id="fare" placeholder="e.g., 1500" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Train Type *</label>
+                    <select id="trainType">
+                        <option value="Express">Express</option>
+                        <option value="Superfast">Superfast</option>
+                        <option value="Passenger">Passenger</option>
+                        <option value="Local">Local</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status *</label>
+                    <select id="status">
+                        <option value="On Time">On Time</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="addTrain()">Add Train</button>
+                <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+            </div>
+        </div>
+
+        <!-- Trains List Section -->
+        <div class="section">
+            <h2>📋 Manage Trains</h2>
+            <div id="trainsMessage"></div>
+
+            <div class="table-container">
+                <table id="trainsTable">
+                    <thead>
+                        <tr>
+                            <th>Train Number</th>
+                            <th>Train Name</th>
+                            <th>Route</th>
+                            <th>Departure</th>
+                            <th>Arrival</th>
+                            <th>Type</th>
+                            <th>Seats</th>
+                            <th>Fare (₹)</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trainsTableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center; padding: 2rem;">Loading trains...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section">
+            <h2>⚙️ Quick Actions</h2>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="refreshData()">🔄 Refresh Data</button>
+                <button class="btn btn-secondary" onclick="downloadReport()">📥 Download Report</button>
+                <button class="btn btn-danger" onclick="resetDatabase()">🔴 Reset Database</button>
+            </div>
+            <div id="actionMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let allTrains = [];
+
+        // Check admin authentication
+        function checkAdminAuth() {
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            const adminEmail = sessionStorage.getItem('adminEmail');
+            
+            if (!isLoggedIn || !adminEmail) {
+                // Redirect to admin login
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            
+            // Check if session expired (24 hours)
+            const loginTime = parseInt(sessionStorage.getItem('adminLoginTime'));
+            const currentTime = new Date().getTime();
+            const sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours
+            
+            if (currentTime - loginTime > sessionTimeout) {
+                sessionStorage.clear();
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            if (!checkAdminAuth()) return;
+            
+            loadTrains();
+            loadStats();
+        });
+
+        // Load trains
+        async function loadTrains() {
+            try {
+                const response = await fetch('/api/trains');
+                if (response.ok) {
+                    allTrains = await response.json();
+                    displayTrains(allTrains);
+                }
+            } catch (err) {
+                console.error('Error loading trains:', err);
+                showMessage('trainsMessage', 'Error loading trains', 'error');
+            }
+        }
+
+        // Display trains
+        function displayTrains(trains) {
+            const tbody = document.getElementById('trainsTableBody');
+            if (trains.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem;">No trains found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = trains.map(train => `
+                <tr>
+                    <td>${train.trainNumber}</td>
+                    <td>${train.trainName}</td>
+                    <td>${train.source} → ${train.destination}</td>
+                    <td>${train.departureTime}</td>
+                    <td>${train.arrivalTime}</td>
+                    <td>${train.trainType}</td>
+                    <td>${train.availableSeats}/${train.totalSeats}</td>
+                    <td>₹${train.fare}</td>
+                    <td><span class="status-badge ${train.status.toLowerCase().replace(' ', '-')}">${train.status}</span></td>
+                    <td>
+                        <button class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="deleteTrain('${train._id}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Add train
+        async function addTrain() {
+            const trainNumber = document.getElementById('trainNumber').value;
+            const trainName = document.getElementById('trainName').value;
+            const source = document.getElementById('source').value;
+            const destination = document.getElementById('destination').value;
+            const totalSeats = parseInt(document.getElementById('totalSeats').value);
+            const departureTime = document.getElementById('departureTime').value;
+            const arrivalTime = document.getElementById('arrivalTime').value;
+            const fare = parseFloat(document.getElementById('fare').value);
+            const trainType = document.getElementById('trainType').value;
+            const status = document.getElementById('status').value;
+
+            if (!trainNumber || !trainName || !source || !destination || !totalSeats || !fare) {
+                showMessage('addTrainMessage', 'Please fill all required fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/trains', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        trainNumber,
+                        trainName,
+                        source,
+                        destination,
+                        totalSeats,
+                        departureTime,
+                        arrivalTime,
+                        fare,
+                        trainType,
+                        status
+                    })
+                });
+
+                if (response.ok) {
+                    showMessage('addTrainMessage', 'Train added successfully!', 'success');
+                    clearForm();
+                    loadTrains();
+                    loadStats();
+                } else {
+                    const error = await response.json();
+                    showMessage('addTrainMessage', 'Error: ' + error.message, 'error');
+                }
+            } catch (err) {
+                console.error('Error adding train:', err);
+                showMessage('addTrainMessage', 'Error adding train', 'error');
+            }
+        }
+
+        // Delete train
+        async function deleteTrain(trainId) {
+            if (!confirm('Are you sure you want to delete this train?')) return;
+
+            try {
+                const response = await fetch(`/api/trains/${trainId}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showMessage('trainsMessage', 'Train deleted successfully!', 'success');
+                    loadTrains();
+                    loadStats();
+                } else {
+                    showMessage('trainsMessage', 'Error deleting train', 'error');
+                }
+            } catch (err) {
+                console.error('Error deleting train:', err);
+                showMessage('trainsMessage', 'Error deleting train', 'error');
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalTrains').textContent = stats.totalTrains;
+                    document.getElementById('totalBookings').textContent = stats.totalBookings;
+                    document.getElementById('totalRevenue').textContent = '₹' + stats.totalRevenue.toLocaleString('en-IN');
+                    
+                    const onTimeTrains = allTrains.filter(t => t.status === 'On Time').length;
+                    document.getElementById('activeTrains').textContent = onTimeTrains;
+                }
+            } catch (err) {
+                console.error('Error loading stats:', err);
+            }
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('trainNumber').value = '';
+            document.getElementById('trainName').value = '';
+            document.getElementById('source').value = '';
+            document.getElementById('destination').value = '';
+            document.getElementById('totalSeats').value = '';
+            document.getElementById('departureTime').value = '';
+            document.getElementById('arrivalTime').value = '';
+            document.getElementById('fare').value = '';
+            document.getElementById('trainType').value = 'Express';
+            document.getElementById('status').value = 'On Time';
+        }
+
+        // Refresh data
+        function refreshData() {
+            loadTrains();
+            loadStats();
+            showMessage('actionMessage', 'Data refreshed!', 'success');
+        }
+
+        // Download report
+        function downloadReport() {
+            const csv = 'Train Number,Train Name,Source,Destination,Seats,Type,Fare,Status\n' +
+                allTrains.map(t => 
+                    `${t.trainNumber},"${t.trainName}","${t.source}","${t.destination}",${t.totalSeats},"${t.trainType}",${t.fare},"${t.status}"`
+                ).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `trains-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            showMessage('actionMessage', 'Report downloaded!', 'success');
+        }
+
+        // Reset database
+        function resetDatabase() {
+            if (!confirm('⚠️  WARNING! This will reset the entire database. Are you absolutely sure?')) return;
+            if (!confirm('This action cannot be undone. Type "RESET" to confirm...')) return;
+
+            alert('To reset the database, please run: node seed.js');
+            showMessage('actionMessage', 'Use command: node seed.js to reset database', 'error');
+        }
+
+        // Show message
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 5000);
+        }
+
+        // Logout
+        async function logout() {
+            // Clear admin session
+            sessionStorage.removeItem('adminLoggedIn');
+            sessionStorage.removeItem('adminEmail');
+            sessionStorage.removeItem('adminLoginTime');
+            
+            // Redirect to admin login
+            window.location.href = 'admin-login.html';
+        }
+    </script>
+</body>
+</html>

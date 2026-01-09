@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login-Railway Concession</title>
+    <style>
+        :root{--primary:#ff5e00;--bg1:#f35f1aef;--bg2:#f3e412}
+        body{font-family:Segoe UI, Roboto, Arial;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));}
+        .card{
+            background: rgb(255, 253, 253); 
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgb(253, 4, 4);
+        }
+        h2{margin:0 0 .3rem;text-align:center}
+        .lead{color:#666;text-align:center;margin-bottom:1rem}
+        label{display:block;margin-bottom:.3rem;font-weight:600;color:#444}
+        input{width:93%;padding:.9rem;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:1rem;}
+        button{width:90%; display: block; margin: 0 auto;padding:.9rem;background:var(--primary);color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer;}
+        .muted{text-align:center;margin-top:.75rem}
+        .muted a{color:var(--primary);text-decoration:none;font-weight:600}
+        #msg{display:none;padding:.7rem;border-radius:8px;margin-bottom:1rem;text-align:center}
+        #msg.error{display:block;background:#ffebee;color:#b00020;border:1px solid #f5c6cb}
+        #msg.success{display:block;background:#e8f5e9;color:#2e7d32;border:1px solid #c7e6c3}
+        .password-wrapper {position: relative;width: 85%;}
+        .password-wrapper input {
+            width: 100%;
+            padding-right: 3.2rem; /* space for toggle button */
+        }
+        .toggle-icon {
+            position: absolute;
+            right: 12px;
+            top: 20%;
+            left: 380px;
+            bottom: 100%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #555;
+            font-size: 14px;
+            font-weight: 600;
+            user-select: none;
+        }
+        .toggle-icon:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Welcome Back</h2>
+        <p class="lead">Log In page</p>
+
+        <div id="msg"></div>
+
+        <form id="login-form">
+            <label for="email">Email</label>
+            <input id="email" type="email" required />
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+                <input id="password" type="password" required />
+                <span id="togglePwd" class="toggle-icon">Show</span>
+            </div>
+            <button type="submit">Log In</button>
+        </form>
+
+        <p class="muted">New here? <a href="signup-page.html">Create account</a></p>
+    </div>
+
+    <script>
+    (function(){
+        const form = document.getElementById('login-form');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const msg = document.getElementById('msg');
+        function show(t, type){ msg.className = type; msg.textContent = t; msg.style.display = 'block'; }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); msg.style.display='none';
+            const em = email.value.trim(); const pw = password.value;
+            if(!em || !pw){ show('Please fill all fields', 'error'); return; }
+            try{
+                const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: em, password: pw }) });
+                const body = await res.json();
+                if(res.ok){ show(body.message || 'Logged in', 'success'); setTimeout(()=> window.location.href='dashboard.html', 700); }
+                else show(body.message || 'Invalid credentials', 'error');
+            } catch(err){ console.error(err); show('Cannot reach server', 'error'); }
+        });
+    })();
+    // Password show/hide toggle
+    const passwordField = document.getElementById("password");
+    const togglePwd = document.getElementById("togglePwd");
+
+    togglePwd.addEventListener("click", () => {
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            togglePwd.textContent = "Hide";
+        } else {
+            passwordField.type = "password";
+            togglePwd.textContent = "Show";
+        }
+    });
+    </script>
+</body>
+</html>

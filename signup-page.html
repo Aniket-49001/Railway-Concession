@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Railway Concession</title>
+    <style>
+        /* Minimal, self-contained styles (matches existing look) */
+        :root{--primary:#ff5e00;--bg-start:#f35f1aef;--bg-end:#f3e412}
+        body{font-family:Segoe UI, Roboto, Arial;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:linear-gradient(180deg,var(--bg-start),var(--bg-end));}
+        .card{
+            background: rgb(255, 253, 253); 
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgb(253, 4, 4);
+        }
+        h2{margin:0 0 .5rem;text-align:center}
+        p.lead{margin:0 0 1.25rem;text-align:center;color:#555}
+        .form-group{margin-bottom:1rem}
+        label{display:block;margin-bottom:.4rem;font-weight:600;color:#555}
+        input{width:93%;padding:.9rem;border:1px solid #ddd;border-radius:8px;font-size:1rem}
+        button{ display: block; margin: 0 auto;width:90%;padding:.95rem;background:var(--primary);color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+        .muted{text-align:center;margin-top:.8rem;color:#666}
+        .muted a{color:var(--primary);text-decoration:none;font-weight:600}
+        #msg{display:none;padding:.75rem;border-radius:8px;margin-bottom:1rem;text-align:center}
+        #msg.error{display:block;background:#ffebee;color:#b00020;border:1px solid #f5c6cb}
+        #msg.success{display:block;background:#e8f5e9;color:#2e7d32;border:1px solid #c7e6c3}
+        .password-wrapper{
+            position: relative;
+            width: 91%;
+        }
+        .password-wrapper input{
+            width: 93%;
+            padding-right: 3.2rem;
+        }
+        .toggle-icon{
+            position:absolute;
+            right: 12px;
+            top:50%;
+            left:380px;
+            transform:translateY(-50%);
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+            color:#555;
+            user-select:none;
+        }
+        .toggle-icon:hover{
+            color:#000;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Create Account</h2>
+        <p class="lead">Sign up to access Railway Concession features</p>
+
+        <div id="msg"></div>
+
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input id="password" name="password" type="password" required />
+                    <span class="toggle-icon" data-target="password">Show</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirm">Confirm Password</label>
+                <div class="password-wrapper">
+                    <input id="confirm" name="confirm" type="password" required />
+                    <span class="toggle-icon" data-target="confirm">Show</span>
+                </div>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <p class="muted">Already have an account? <a href="login-page.html">Log in</a></p>
+    </div>
+
+    <script>
+    (function(){
+        const form = document.getElementById('signup-form');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirm = document.getElementById('confirm');
+        const msg = document.getElementById('msg');
+
+        function show(text, type){ msg.className = type; msg.textContent = text; msg.style.display = 'block'; }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            msg.style.display = 'none';
+            const em = email.value.trim();
+            const pw = password.value;
+            const cpw = confirm.value;
+            if(!em || !pw || !cpw){ show('Please fill all fields', 'error'); return; }
+            if(pw.length < 6){ show('Password must be at least 6 characters', 'error'); return; }
+            if(pw !== cpw){ show('Passwords do not match', 'error'); return; }
+
+            try{
+                const res = await fetch('/api/register', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email: em, password: pw }) });
+                const body = await res.json();
+                if(res.ok){ show(body.message || 'Account created', 'success');
+                    setTimeout(() => window.location.href = 'login-page.html', 1200);
+                } else { show(body.message || 'Error', 'error'); }
+            } catch(err){ console.error(err); show('Cannot reach server', 'error'); }
+        });
+    })();
+    // Show/Hide Password Feature
+        document.querySelectorAll(".toggle-icon").forEach(icon => {
+            icon.addEventListener("click", () => {
+                const input = document.getElementById(icon.dataset.target);
+
+                if(input.type === "password"){
+                    input.type = "text";
+                    icon.textContent = "Hide";
+                } else {
+                    input.type = "password";
+                    icon.textContent = "Show";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
