@@ -2,6 +2,13 @@
 
 A web application that enables college students to apply online for railway concession certificates. Students register using their college ID, submit concession applications, upload supporting documents, and track application status. College admins verify and approve or reject applications; railway authorities view approved concessions to issue passes.
 
+## Quick Overview
+
+- **Scope**: Only college students may apply for concessions; college admins verify students; railway authority issues passes.
+- **Roles**: Student, College Admin, Railway Authority.
+- **Primary flows**: Student registration → Submit application → Admin verification → Railway issuance.
+
+
 ## Features
 
 ✨ **Student Registration & Authentication**
