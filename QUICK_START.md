@@ -1,4 +1,6 @@
-# 🚀 Quick Start Checklist
+# Quick Start — Railway Concession Management System (For College Students)
+
+This project is designed exclusively for college students to apply for and manage railway concession certificates online. Students should register using their college ID; college admins verify applications and approve or reject them. Railway authorities view approved concessions to issue passes.
 
 ## Pre-Installation
 
@@ -39,10 +41,11 @@ Server running at http://localhost:3000
 
 | Page | URL | Purpose |
 |------|-----|---------|
-| Signup | http://localhost:3000/signup-page.html | Create account |
-| Login | http://localhost:3000/login-page.html | Sign in |
-| Dashboard | http://localhost:3000/dashboard.html | Main interface |
-| Admin | http://localhost:3000/admin.html | Manage trains |
+| Signup | http://localhost:3000/signup-page.html | Register with college ID (students only) |
+| Login | http://localhost:3000/login-page.html | Student & admin login |
+| Student Dashboard | http://localhost:3000/dashboard.html | Apply for concession, upload documents, track status |
+| Admin Panel | http://localhost:3000/admin.html | College admin: verify & approve/reject applications |
+| Railway Panel | http://localhost:3000/railway.html | Railway authority: view approved concessions and issue passes |
 
 ---
 
@@ -51,15 +54,17 @@ Server running at http://localhost:3000
 ```
 1. Go to signup-page.html
    ↓
-2. Create account (email & password)
+2. Register using college ID and required details
    ↓
-3. Go to login-page.html
+3. Login at login-page.html
    ↓
-4. Login with credentials
+4. On Student Dashboard, apply for railway concession
    ↓
-5. Redirected to dashboard.html
+5. Upload required documents (college ID, student ID, photos)
    ↓
-6. View trains, search, book tickets
+6. Track application status: Pending / Approved / Rejected
+   ↓
+7. If approved, the railway authority issues the concession pass
 ```
 
 ---
@@ -110,44 +115,27 @@ Or create your own during signup!
 
 ---
 
-## Admin Features
+## College Admin Features
 
 **Access**: `http://localhost:3000/admin.html`
 
-- ✅ Add new trains
-- ✅ View all trains
-- ✅ Delete trains
-- ✅ Download CSV report
-- ✅ Refresh data
-- ✅ View statistics
+- ✅ Verify student details and college records
+- ✅ View pending applications
+- ✅ Approve or reject student concession applications
+- ✅ Download CSV reports of applications
+- ✅ Manage student records and audit history
 
 ---
 
-## Dashboard Features
+## Student Dashboard Features
 
 **Access**: After login (automatic redirect)
 
-### Overview Tab
-- Real-time statistics
-- Network metrics
-- System health status
-
-### Search Trains Tab
-- Filter by source/destination
-- View train details
-- Book tickets
-- Check seat availability
-
-### My Bookings Tab
-- Booking history
-- Booking details
-- Payment status
-- Cancellation (future feature)
-
-### Stations Tab
-- All railway stations
-- Station codes
-- Location information
+- Apply for railway concession
+- Upload required documents and attachments
+- View application status (Pending / Approved / Rejected)
+- Download issued concession certificate once approved
+- View application history and messages from college admin
 
 ---
 
@@ -346,14 +334,12 @@ After successful setup:
 
 1. Server starts without errors
 2. MongoDB connects successfully
-3. Can signup with new account
-4. Can login with credentials
-5. Dashboard loads and shows stats
-6. Can search trains
-7. Can book tickets
-8. Bookings appear in "My Bookings"
-9. Admin page loads trains
-10. No red errors in browser console (F12)
+3. Students can register with college ID
+4. Students can login
+5. Students can apply for concession and upload documents
+6. Admin can view and approve/reject applications
+7. Approved concessions are visible to railway authority
+8. No red errors in browser console (F12)
 
 ---
 

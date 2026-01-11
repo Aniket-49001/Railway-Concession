@@ -1,43 +1,36 @@
-# 🚂 Railway Concession System
+# Railway Concession Management System (For College Students)
 
-A modern web application for railway ticket booking with MongoDB integration and an interactive dashboard.
+A web application that enables college students to apply online for railway concession certificates. Students register using their college ID, submit concession applications, upload supporting documents, and track application status. College admins verify and approve or reject applications; railway authorities view approved concessions to issue passes.
 
 ## Features
 
-✨ **User Authentication**
-- Secure signup and login
-- Session-based authentication
+✨ **Student Registration & Authentication**
+- Register with college ID and required details
+- Secure signup and login with session management
 - Password hashing with bcryptjs
 
-📊 **Dashboard**
-- Real-time statistics (trains, bookings, passengers, revenue)
-- System occupancy metrics
-- User booking history
-- Professional UI with charts and cards
+📝 **Concession Application**
+- Students can apply online for railway concessions
+- Upload required documents (college ID, student ID, photos)
+- Track application status: Pending / Approved / Rejected
 
-🚄 **Train Management**
-- Search trains by source and destination
-- Filter trains by date
-- View real-time seat availability
-- Train status tracking (On Time, Delayed, Cancelled)
+🏫 **College Admin Dashboard**
+- Verify college and student records
+- View pending applications and supporting documents
+- Approve or reject concession applications
+- Download CSV reports and audit logs
 
-🎫 **Ticket Booking**
-- Easy-to-use booking interface
-- Calculate total fare dynamically
-- Confirm bookings with journey date
-- View booking history
-- Booking status tracking
+🚆 **Railway Authority**
+- Access approved concessions list
+- Issue concession passes based on approvals
 
-🏢 **Station Management**
-- View all railway stations
-- Station codes and locations
-- City and state information
+📂 **Document Management**
+- Secure file uploads and storage
+- Attachment preview and download
 
 📱 **Responsive Design**
 - Mobile-friendly interface
-- Sidebar navigation
-- Modern gradient UI
-- Smooth transitions and animations
+- Clear workflows for students, admins, and railway authority
 
 ## Tech Stack
 
@@ -88,8 +81,8 @@ node seed.js
 ```
 
 This will populate the database with:
-- 8 sample railway stations
-- 8 sample trains with different routes and fares
+- Sample colleges for testing
+- Sample student applications with different statuses (Pending / Approved / Rejected)
 
 ## Running the Application
 
@@ -102,7 +95,7 @@ The server will run at `http://localhost:3000`
 
 ### Access the Application
 
-1. **Signup**: Create a new account at `http://localhost:3000/signup-page.html`
+1. **Signup**: Register with your college ID at `http://localhost:3000/signup-page.html` (students only)
 2. **Login**: Log in with your credentials at `http://localhost:3000/login-page.html`
 3. **Dashboard**: After login, you'll be redirected to `http://localhost:3000/dashboard.html`
 
@@ -132,17 +125,13 @@ Railway-Concession/
 ### Dashboard
 - `GET /api/dashboard/stats` - Get dashboard statistics
 
-### Trains
-- `GET /api/trains` - Get all trains
-- `GET /api/trains/search` - Search trains by source/destination
-- `POST /api/trains` - Create a new train (admin)
-
-### Bookings
-- `POST /api/bookings` - Book a ticket
-- `GET /api/bookings` - Get user's bookings
-
-### Stations
-- `GET /api/stations` - Get all stations
+### Applications
+- `POST /api/applications` - Student submits a concession application
+- `GET /api/applications` - College admin / railway authority: list applications (with filters)
+- `GET /api/applications/:id` - View application details
+- `POST /api/applications/:id/approve` - College admin approves application
+- `POST /api/applications/:id/reject` - College admin rejects application
+- `GET /api/applications/approved` - Railway authority: list approved applications
 
 ## Usage Guide
 
@@ -152,18 +141,17 @@ Railway-Concession/
 3. Click "Sign Up"
 4. Redirect to login page to sign in
 
-### Booking a Train
-1. Navigate to "Search Trains" tab
-2. (Optional) Filter by source and destination
-3. Click "Book" on desired train
-4. Enter number of passengers and journey date
-5. Review total fare and confirm booking
-6. Receive booking confirmation with booking ID
+### Applying for Concession
+1. Go to Student Dashboard
+2. Click "Apply for Concession"
+3. Fill the application form and upload required documents
+4. Submit application and note the application ID
+5. Track status on dashboard; wait for college admin verification
 
-### Viewing Your Bookings
-1. Go to "My Bookings" tab
-2. View all your confirmed bookings
-3. Click "View" to see booking details
+### Viewing Your Applications
+1. Go to "My Applications" or Student Dashboard
+2. View application status and details
+3. Download concession certificate once approved
 
 ### Checking Dashboard Stats
 1. Go to "Overview" tab
@@ -195,52 +183,29 @@ For testing, create an account like:
 }
 ```
 
-### Train Schema
+### Application Schema
 ```javascript
 {
-  trainNumber: String,
-  trainName: String,
-  source: String,
-  destination: String,
-  totalSeats: Number,
-  availableSeats: Number,
-  departureTime: String,
-  arrivalTime: String,
-  fare: Number,
-  trainType: String,
-  status: String,
-  created_at: Date
+  applicationId: String (unique, required),
+  studentEmail: String (required),
+  collegeId: String (required),
+  studentName: String,
+  documents: [ { name: String, url: String } ],
+  status: String (enum: ['Pending','Approved','Rejected']),
+  adminNotes: String,
+  created_at: Date,
+  updated_at: Date
 }
 ```
 
-### Booking Schema
+### College Schema
 ```javascript
 {
-  bookingId: String,
-  userEmail: String,
-  trainNumber: String,
-  trainName: String,
-  source: String,
-  destination: String,
-  passengers: Number,
-  totalFare: Number,
-  seatNumbers: Array,
-  status: String,
-  bookingDate: Date,
-  journeyDate: Date
-}
-```
-
-### Station Schema
-```javascript
-{
-  name: String,
-  code: String,
-  city: String,
-  state: String,
-  latitude: Number,
-  longitude: Number,
-  created_at: Date
+  collegeId: String (unique, required),
+  name: String (required),
+  verified: Boolean (default: false),
+  contactEmail: String,
+  created_at: Date (default: now)
 }
 ```
 

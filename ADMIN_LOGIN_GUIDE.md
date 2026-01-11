@@ -20,31 +20,28 @@ You'll be redirected to the admin dashboard.
 
 ## 🎯 Admin Panel Features
 
-### ➕ Add New Trains
-1. Fill in the train details form
-2. Click "Add Train"
-3. Train appears in the table below
+### ✅ Verify Applications
+1. Open 'Pending Applications' to see unprocessed submissions
+2. Click an application to view uploaded documents and student details
+3. Add notes and click 'Approve' or 'Reject'
 
-### 📋 Manage Trains
-1. View all trains in the table
-2. Delete trains with the "Delete" button
-3. Check seat availability
+### 📋 Manage Applications
+1. Filter applications by status or college
+2. Search by student name, college ID, or application ID
+3. Export application lists as CSV for audits
 
 ### 📊 Statistics
-- Total trains count
-- Total bookings count
-- Total revenue earned
-- Active trains on time
+- Applications by status (Pending / Approved / Rejected)
+- Recent activity and processing times
+- Admin action logs
 
 ### 📥 Download Reports
-- Export all train data as CSV
-- Use for record keeping
-- Compatible with Excel
+- Export application data as CSV for record-keeping
+- Generate reports for approved concessions
 
 ### 🔄 Refresh Data
-- Click "Refresh Data" to update stats
-- Real-time synchronization
-- Auto-updates after actions
+- Click "Refresh Data" to update application lists
+- Real-time synchronization after actions
 
 ---
 
@@ -108,24 +105,14 @@ When adding a train, fill in:
 
 ---
 
-## 💾 Sample Train Data
+## 💾 Sample Application Data
 
-After running `node seed.js`, 8 trains are pre-loaded:
-
-1. **Shatabdi Express** (12001) - Delhi to Agra - ₹400
-2. **Rajdhani Express** (12002) - Delhi to Mumbai - ₹2500
-3. **Karnataka Express** (12003) - Delhi to Bangalore - ₹2000
-4. **Howrah Mail** (12004) - Delhi to Kolkata - ₹1800
-5. **Coromandel Express** (12005) - Mumbai to Chennai - ₹1500
-6. **Deccan Express** (12006) - Pune to Hyderabad - ₹900
-7. **Gujarat Express** (12007) - Mumbai to Ahmedabad - ₹600
-8. **Bangalore Express** (12008) - Bangalore to Hyderabad - ₹800
+After running `node seed.js`, a few sample student applications are pre-loaded to help testing (Pending, Approved, Rejected statuses).
 
 You can:
-- Delete sample trains
-- Add new trains
-- Modify by deleting and re-adding
-- Export data to CSV
+- Review sample applications
+- Approve or reject for testing
+- Export application data to CSV for verification
 
 ---
 

@@ -2,7 +2,7 @@
 ║                                                                               ║
 ║          🚂 Welcome to Railway Concession System! 🚂                         ║
 ║                                                                               ║
-║                    Your Complete Ticket Booking Solution                      ║
+║                    Your Complete Railway Concession Solution                      ║
 ║                                                                               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 
@@ -33,14 +33,13 @@
 
 ✨ WHAT YOU'VE GOT:
 
-   ✅ Complete booking system with MongoDB
-   ✅ User authentication (signup/login)
-   ✅ Professional dashboard with stats
-   ✅ Search and book train tickets
-   ✅ Admin panel for train management
+   ✅ Complete concession management system with MongoDB
+   ✅ User authentication (signup/login) — students register with college ID
+   ✅ Student dashboard to apply and track concessions
+   ✅ Admin panel for application verification
    ✅ Responsive design (mobile-friendly)
-   ✅ RESTful API with 12+ endpoints
-   ✅ Sample data (8 trains, 8 stations)
+   ✅ RESTful API with endpoints for applications & admin actions
+   ✅ Sample data (sample colleges, sample applications)
    ✅ Comprehensive documentation
    ✅ Quick start scripts
 
@@ -64,10 +63,10 @@
    [ ] Run npm install (2 minutes)
    [ ] Run node seed.js (1 minute)
    [ ] Run npm start (1 minute)
-   [ ] Create account at signup page
+   [ ] Register with your college ID at signup page
    [ ] Login to dashboard
-   [ ] Book your first ticket
-   [ ] Explore admin panel
+   [ ] Submit your first concession application
+   [ ] Explore admin panel to verify applications
 
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -101,19 +100,17 @@
    User Features:
    • Register with email/password
    • Login with session persistence
-   • Search trains by route
-   • Book tickets with dynamic pricing
-   • View booking history
-   • Check network statistics
-   • View all stations
+   • Apply for railway concession online
+   • Upload documents and supporting files
+   • View application history and status
+   • Check application statistics
+   • Manage colleges and verification status
 
    Admin Features:
-   • Add new trains
-   • Manage existing trains
-   • Delete trains
-   • View real-time statistics
-   • Download CSV reports
-   • Quick data refresh
+   • Verify student applications
+   • Approve or reject concessions
+   • Download CSV reports of applications
+   • Refresh data and monitor audits
 
    Technical Features:
    • MongoDB integration (Atlas/Local)
@@ -176,7 +173,7 @@
    1. Keep .env file safe (has MongoDB credentials)
    2. Seed database before first use: node seed.js
    3. Check browser console (F12) for errors
-   4. Use admin panel to manage trains
+   4. Use admin panel to verify applications
    5. Create multiple test accounts to explore
    6. Change session secret before production
    7. Check TROUBLESHOOTING.md if stuck
@@ -202,7 +199,7 @@
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-Happy Booking! 🎫🚂✨
+Happy Applying! 🎉✨
 
 Built with love and modern web technologies.
 Repository: Railway-Concession

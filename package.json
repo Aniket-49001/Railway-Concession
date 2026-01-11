@@ -1,7 +1,7 @@
 {
   "name": "sehat-app",
   "version": "1.0.0",
-  "description": "Local Sehat demo with signup/login",
+  "description": "Railway Concession Management System (For College Students) - students register with college ID and apply for concessions",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

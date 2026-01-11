@@ -121,7 +121,7 @@ cookie: { maxAge: 24 * 60 * 60 * 1000 }  // 24 hours
 # Option 2: Run script with force flag (create in seed.js if needed)
 ```
 
-**No trains appear after seeding**
+**No applications appear after seeding**
 ```bash
 # Check if seed completed successfully
 # Verify MongoDB connection
@@ -144,25 +144,25 @@ await mongoose.connect(MONGO_URI, {
 
 ---
 
-### 5. Booking Issues
+### 5. Application Issues
 
-#### Can't book a train
+#### Can't submit an application
 
-**Problem 1: "Not enough seats available"**
+**Problem 1: "Missing or invalid documents"**
 ```
-- Check available seats > number of passengers
-- Try different train
+- Ensure all required documents are uploaded
+- Check document size and allowed file types
 - Refresh page and try again
 ```
 
-**Problem 2: "Train not found"**
+**Problem 2: "Application not found"**
 ```
-- Seed database with: node seed.js
-- Check if trains exist in dashboard
-- Verify train number is correct
+- Seed database with: node seed.js (if using sample data)
+- Check if applications exist in admin dashboard
+- Verify application ID is correct
 ```
 
-**Problem 3: Booking fails silently**
+**Problem 3: Submission fails silently**
 ```
 Check browser console (F12 → Console):
 - Look for error messages
@@ -170,14 +170,14 @@ Check browser console (F12 → Console):
 - Verify API endpoint responds
 ```
 
-#### Booking succeeded but doesn't appear
+#### Application submitted but doesn't appear
 
 **Solution:**
 ```
 1. Refresh page
-2. Check "My Bookings" tab
+2. Check "My Applications" or Student Dashboard
 3. Verify you're logged in as same user
-4. Check MongoDB bookings collection
+4. Check MongoDB applications collection
 ```
 
 ---
@@ -209,18 +209,18 @@ Check browser console (F12):
 5. Look for error messages
 ```
 
-#### Trains don't load
+#### Applications don't load
 
 **Solution 1: Check MongoDB**
 ```
-# Verify trains collection has data
+# Verify applications collection has data
 # Use MongoDB Compass or Atlas web interface
 ```
 
 **Solution 2: API error**
 ```
 # Check server logs for errors
-# Verify trains collection is properly indexed
+# Verify applications collection is properly indexed
 ```
 
 **Solution 3: Network issue**
@@ -259,8 +259,8 @@ Clear browser cache:
 **Solution:**
 ```
 Check file paths are correct relative to html file
-Use absolute paths: /images/train.png
-Not relative paths: images/train.png
+Use absolute paths for images (e.g., `/images/concession.png`)
+Not relative paths (avoid `images/concession.png`)
 ```
 
 ---

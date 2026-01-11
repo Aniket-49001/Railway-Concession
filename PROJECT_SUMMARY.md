@@ -1,58 +1,37 @@
-# 🚂 Railway Concession System - Project Summary
+# Railway Concession Management System - Project Summary
 
 ## What Has Been Implemented
 
 ### ✅ Core Features
 
-#### 1. **User Authentication System**
-- Secure signup with email and password
-- Password hashing using bcryptjs
-- Session-based login/logout
-- User profile management
-- File-based fallback if MongoDB unavailable
+#### 1. **User & College Authentication**
+- Secure signup for students using college ID and required info
+- College admin accounts for verification workflows
+- Password hashing using bcryptjs and session-based login
 
 #### 2. **MongoDB Integration**
-- Four main collections:
-  - **Users**: Stores user accounts and credentials
-  - **Trains**: Railway train information and schedules
-  - **Bookings**: Passenger ticket bookings
-  - **Stations**: Railway station details
-- Automatic schema creation
+- Main collections:
+  - **Users**: Student accounts and credentials
+  - **Applications**: Concession applications and documents
+  - **Colleges**: College records used for verification
 - Support for both local and cloud (Atlas) MongoDB
 
-#### 3. **Professional Dashboard**
-- Beautiful, responsive user interface
-- Real-time statistics display:
-  - Total trains available
-  - User bookings count
-  - Total passengers booked
-  - Total revenue/spending
-  - Network occupancy rate
-- Four main tabs:
-  - Overview (Statistics)
-  - Search Trains
-  - My Bookings
-  - Stations
+#### 3. **Student Dashboard**
+- Responsive student UI to apply for concessions
+- Application submission and document upload
+- Track application status and download concession certificate once approved
 
-#### 4. **Train Search & Booking**
-- Search trains by source/destination
-- View real-time seat availability
-- Dynamic fare calculation
-- Booking confirmation with unique ID
-- Journey date selection
-- Passenger count selection
-- Auto-update seat availability
+#### 4. **College Admin Panel**
+- Verify student eligibility and college records
+- Approve or reject applications with notes
+- Export application reports and audit history
 
-#### 5. **Admin Panel**
-- Add new trains to the system
-- Manage train operations
-- View all trains with details
-- Quick statistics display
-- Download reports as CSV
-- Delete trains (with confirmation)
+#### 5. **Railway Authority View**
+- Access list of approved concessions for issuing passes
+- Export approved lists as CSV
 
 #### 6. **API Backend**
-Complete RESTful API with endpoints:
+Complete RESTful API with endpoints for authentication, applications, admin actions, and reporting:
 
 **Authentication:**
 - `POST /api/register` - User signup
@@ -147,51 +126,28 @@ Railway-Concession/
 }
 ```
 
-### Train Schema
+### Application Schema
 ```javascript
 {
-  trainNumber: String (unique, required),
-  trainName: String (required),
-  source: String (required),
-  destination: String (required),
-  totalSeats: Number (required),
-  availableSeats: Number (required),
-  departureTime: String,
-  arrivalTime: String,
-  fare: Number (required),
-  trainType: Enum ['Express', 'Superfast', 'Passenger', 'Local'],
-  status: Enum ['On Time', 'Delayed', 'Cancelled'],
-  created_at: Date (default: now)
+  applicationId: String (unique, required),
+  studentEmail: String (required),
+  collegeId: String (required),
+  studentName: String,
+  documents: [ { name: String, url: String } ],
+  status: String (enum: ['Pending','Approved','Rejected']),
+  adminNotes: String,
+  created_at: Date (default: now),
+  updated_at: Date
 }
 ```
 
-### Booking Schema
+### College Schema
 ```javascript
 {
-  bookingId: String (unique),
-  userEmail: String (required),
-  trainNumber: String (required),
-  trainName: String (required),
-  source: String (required),
-  destination: String (required),
-  passengers: Number (required),
-  totalFare: Number (required),
-  seatNumbers: [String],
-  status: Enum ['Confirmed', 'Cancelled', 'Pending'],
-  bookingDate: Date (default: now),
-  journeyDate: Date (required)
-}
-```
-
-### Station Schema
-```javascript
-{
-  name: String (unique, required),
-  code: String (unique, required),
-  city: String (required),
-  state: String (required),
-  latitude: Number,
-  longitude: Number,
+  collegeId: String (unique, required),
+  name: String (required),
+  verified: Boolean (default: false),
+  contactEmail: String,
   created_at: Date (default: now)
 }
 ```
@@ -200,20 +156,13 @@ Railway-Concession/
 
 ## Sample Data Included
 
-### Stations (8 total)
-- Delhi Central, Mumbai Central, Bangalore City
-- Kolkata, Chennai Central, Hyderabad
-- Pune, Ahmedabad
+### Colleges (sample)
+- ABC College (collegeId: ABC123)
+- XYZ University (collegeId: XYZ456)
 
-### Trains (8 total)
-1. **Shatabdi Express** - Delhi → Agra (400 seats, ₹400)
-2. **Rajdhani Express** - Delhi → Mumbai (500 seats, ₹2500)
-3. **Karnataka Express** - Delhi → Bangalore (450 seats, ₹2000)
-4. **Howrah Mail** - Delhi → Kolkata (400 seats, ₹1800)
-5. **Coromandel Express** - Mumbai → Chennai (350 seats, ₹1500)
-6. **Deccan Express** - Pune → Hyderabad (300 seats, ₹900)
-7. **Gujarat Express** - Mumbai → Ahmedabad (350 seats, ₹600)
-8. **Bangalore Express** - Bangalore → Hyderabad (250 seats, ₹800)
+### Sample Applications
+- A few seeded student applications covering statuses: Pending, Approved, Rejected
+- Sample documents included for testing uploads and verification workflows
 
 ---
 

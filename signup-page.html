@@ -55,12 +55,21 @@
 </head>
 <body>
     <div class="card">
+        <p style="text-align:center;font-weight:700;color:#d35400;margin-bottom:0.5rem">For College Students Only — register using your College ID</p>
         <h2>Create Account</h2>
         <p class="lead">Sign up to access Railway Concession features</p>
 
         <div id="msg"></div>
 
         <form id="signup-form">
+            <div class="form-group">
+                <label for="collegeId">College ID</label>
+                <input id="collegeId" name="collegeId" type="text" required placeholder="e.g., ABC123" />
+            </div>
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input id="fullName" name="fullName" type="text" required />
+            </div>
             <div class="form-group">
                 <label for="email">Email</label>
                 <input id="email" name="email" type="email" required />
@@ -88,6 +97,8 @@
     <script>
     (function(){
         const form = document.getElementById('signup-form');
+        const collegeId = document.getElementById('collegeId');
+        const fullName = document.getElementById('fullName');
         const email = document.getElementById('email');
         const password = document.getElementById('password');
         const confirm = document.getElementById('confirm');
@@ -98,15 +109,17 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             msg.style.display = 'none';
+            const cid = collegeId.value.trim();
+            const name = fullName.value.trim();
             const em = email.value.trim();
             const pw = password.value;
             const cpw = confirm.value;
-            if(!em || !pw || !cpw){ show('Please fill all fields', 'error'); return; }
+            if(!cid || !name || !em || !pw || !cpw){ show('Please fill all fields', 'error'); return; }
             if(pw.length < 6){ show('Password must be at least 6 characters', 'error'); return; }
             if(pw !== cpw){ show('Passwords do not match', 'error'); return; }
 
             try{
-                const res = await fetch('/api/register', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email: em, password: pw }) });
+                const res = await fetch('/api/register', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email: em, password: pw, collegeId: cid, fullName: name }) });
                 const body = await res.json();
                 if(res.ok){ show(body.message || 'Account created', 'success');
                     setTimeout(() => window.location.href = 'login-page.html', 1200);

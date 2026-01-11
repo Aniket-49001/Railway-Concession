@@ -105,16 +105,16 @@ Expected output:
 ```
 Connected to MongoDB
 Cleared existing data
-✅ Added 8 stations
-✅ Added 8 trains
+✅ Added sample colleges
+✅ Added sample applications
 🚀 Database seeded successfully!
-Total Stations: 8
-Total Trains: 8
+Sample Colleges: 2
+Sample Applications: 3
 ```
 
 This creates:
-- 8 railway stations (Delhi, Mumbai, Bangalore, etc.)
-- 8 sample trains with different routes and schedules
+- Sample colleges for testing (e.g., ABC College, XYZ University)
+- Sample student applications with various statuses (Pending, Approved, Rejected)
 
 ---
 
@@ -177,7 +177,7 @@ http://localhost:3000/admin.html
 
 ---
 
-## Workflow: Create First Account & Book Ticket
+## Workflow: Create First Account & Submit Application
 
 ### 1. Create an Account
 - Go to `http://localhost:3000/signup-page.html`
@@ -191,24 +191,22 @@ http://localhost:3000/admin.html
 - Click "Log In"
 - You'll be redirected to dashboard
 
-### 3. Search Trains (Dashboard)
-- Click "Search Trains" in sidebar
-- Leave filters empty or enter source/destination
-- Click "Search Trains"
-- Available trains will display
+### 3. Apply for Concession (Dashboard)
+- Click "Apply for Concession" in sidebar
+- Fill the application form with required details
+- Upload required documents and attachments
+- Submit application and note the application ID
 
-### 4. Book a Ticket
-- Click "Book" button on any train
-- Enter number of passengers
-- Select journey date
-- Review total fare (calculated automatically)
-- Click "Confirm Booking"
-- You'll see booking confirmation with Booking ID
+### 4. Submit an Application
+- On Student Dashboard, click "Apply for Concession"
+- Fill the concession form and upload required documents
+- Submit the application
+- Note the application ID and track its status
 
-### 5. View Bookings
-- Click "My Bookings" in sidebar
-- See all your confirmed bookings
-- Click "View" for booking details
+### 5. View Applications
+- Click "My Applications" in sidebar
+- See all your submitted applications and their status
+- Click "View" for application details
 
 ### 6. Check Dashboard Stats
 - Click "Overview" in sidebar
@@ -271,56 +269,37 @@ const port = process.env.PORT || 3000;
 }
 ```
 
-### Trains Collection
+### Applications Collection
 ```javascript
 {
   _id: ObjectId,
-  trainNumber: String,      // e.g., "12001"
-  trainName: String,        // e.g., "Rajdhani Express"
-  source: String,
-  destination: String,
-  totalSeats: Number,
-  availableSeats: Number,
-  departureTime: String,    // e.g., "14:30"
-  arrivalTime: String,
-  fare: Number,             // In INR
-  trainType: String,        // Express, Superfast, Passenger, Local
-  status: String,           // On Time, Delayed, Cancelled
+  applicationId: String,        // e.g., "APP123456"
+  studentEmail: String,
+  collegeId: String,
+  studentName: String,
+  documents: [ { name: String, url: String } ],
+  status: String,               // Pending, Approved, Rejected
+  adminNotes: String,
+  created_at: Date,
+  updated_at: Date
+}
+```
+
+### Colleges Collection
+```javascript
+{
+  _id: ObjectId,
+  collegeId: String,        // e.g., "ABC123"
+  name: String,
+  contactEmail: String,
+  verified: Boolean,        // true/false
   created_at: Date
 }
 ```
 
-### Bookings Collection
-```javascript
-{
-  _id: ObjectId,
-  bookingId: String,        // e.g., "BK1234567890"
-  userEmail: String,
-  trainNumber: String,
-  trainName: String,
-  source: String,
-  destination: String,
-  passengers: Number,
-  totalFare: Number,
-  seatNumbers: [String],
-  status: String,           // Confirmed, Cancelled, Pending
-  bookingDate: Date,
-  journeyDate: Date
-}
+### (Legacy) Stations Collection
 ```
-
-### Stations Collection
-```javascript
-{
-  _id: ObjectId,
-  name: String,             // e.g., "Delhi Central"
-  code: String,             // e.g., "DLI"
-  city: String,
-  state: String,
-  latitude: Number,
-  longitude: Number,
-  created_at: Date
-}
+Note: This project focuses on concession applications. Station data remains for legacy/demo purposes and will be phased out or repurposed as needed.
 ```
 
 ---
@@ -344,34 +323,44 @@ GET /api/profile
 POST /api/logout
 ```
 
-### Trains
+### Applications
 ```bash
-# Get all trains
-GET /api/trains
+# Get all applications
+GET /api/applications
 
-# Search trains
-GET /api/trains/search?source=Delhi&destination=Mumbai
+# Search applications
+GET /api/applications?collegeId=ABC123&status=Pending
 
-# Add new train (admin)
-POST /api/trains
-Body: { trainNumber, trainName, source, destination, ... }
+# Submit application (student)
+POST /api/applications
+Body: { studentEmail, collegeId, documents, additionalInfo }
 ```
 
-### Bookings
+### Colleges
 ```bash
-# Book a ticket
-POST /api/bookings
-Body: { trainNumber, passengers, journeyDate }
+# Get all colleges
+GET /api/colleges
 
-# Get user bookings
-GET /api/bookings
+# Add a college (admin)
+POST /api/colleges
+Body: { collegeId, name, contactEmail }
+```
+
+### Applications (User)
+```bash
+# Submit application
+POST /api/applications
+Body: { studentEmail, collegeId, documents, additionalInfo }
+
+# Get user's applications
+GET /api/applications?studentEmail=user@example.com
 ```
 
 ### Dashboard
 ```bash
 # Get statistics
 GET /api/dashboard/stats
-Returns: { totalTrains, totalBookings, totalPassengers, totalRevenue, occupancyRate }
+Returns: { totalApplications, totalProcessed, totalPending, recentActivity }
 ```
 
 ### Stations
@@ -443,12 +432,12 @@ npm install
 
 2. **Optimize Queries**: Only fetch needed fields
    ```javascript
-   await Train.find().select('trainNumber trainName fare');
+   await Application.find().select('applicationId studentEmail status');
    ```
 
 3. **Add Indexes**: For frequently queried fields
    ```javascript
-   trainSchema.index({ source: 1, destination: 1 });
+   applicationSchema.index({ collegeId: 1, status: 1 });
    ```
 
 4. **Use Caching**: For static data like stations
@@ -458,7 +447,7 @@ npm install
 
 5. **Pagination**: For large datasets
    ```bash
-   GET /api/trains?page=1&limit=20
+   GET /api/applications?page=1&limit=20
    ```
 
 ---
@@ -510,7 +499,7 @@ npm install
 
 1. ✅ Complete setup
 2. ✅ Create test accounts
-3. ✅ Book some tickets
+3. ✅ Submit some applications
 4. ✅ Explore dashboard
 5. ➡️ Add more features (payments, emails, etc.)
 6. ➡️ Deploy to production

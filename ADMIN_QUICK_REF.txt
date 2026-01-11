@@ -5,7 +5,7 @@
 | Page | URL | Purpose |
 |------|-----|---------|
 | Admin Login | http://localhost:3000/admin-login.html | Enter credentials |
-| Admin Panel | http://localhost:3000/admin.html | Manage system (after login) |
+| Admin Panel | http://localhost:3000/admin.html | Verify and manage student concession applications |
 
 ---
 
@@ -23,42 +23,40 @@ Password: admin123
 ## 🚀 Quick Start
 
 1. Go to: `http://localhost:3000/admin-login.html`
-2. Enter: `admin@railway.com`
-3. Enter: `admin123`
-4. Click: **"Login to Admin Panel"**
-5. ✅ You're in the admin panel!
+2. Enter your admin credentials (email & password)
+3. Click: **"Login to Admin Panel"**
+4. ✅ In the admin panel, open 'Pending Applications' to verify and process student concessions
 
 ---
 
 ## 📋 Admin Panel Functions
 
-✅ **Add Trains**
-- Train number, name, route
-- Seats, times, fare
-- Train type & status
+✅ **Verify Applications**
+- View pending student concession applications
+- Inspect uploaded documents and college ID
+- Add verification notes and approve or reject applications
 
-✅ **View Trains**
-- See all trains in table
-- Check availability
-- View all details
+✅ **Manage Applications**
+- Filter by status (Pending / Approved / Rejected)
+- Search by student, college ID, or application ID
+- Download CSV reports of applications
 
-✅ **Delete Trains**
-- Click "Delete" button
-- Train removed from system
+✅ **Manage Colleges**
+- View registered colleges and verification status
+- Mark colleges as verified/unverified
+- Update college contact details
 
 ✅ **Statistics**
-- Total trains
-- Total bookings
-- Total revenue
-- Active trains
+- Application counts by status
+- Recently processed applications
+- Quick audit metrics
 
-✅ **Download Reports**
-- Export as CSV
-- Train data backup
+✅ **Export Reports**
+- Export application data as CSV for record-keeping
 
 ✅ **Refresh**
 - Update all data
-- Real-time sync
+- Real-time sync for new applications
 
 ---
 
