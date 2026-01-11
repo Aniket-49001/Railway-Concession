@@ -1,161 +1,56 @@
 /**
- * Seed Script for Railway Concession System
+ * Seed Script for Railway Concession System (college-scoped)
  * Run: node seed.js
- * This script populates the MongoDB database with sample trains and stations
+ * This script populates the MongoDB database with sample colleges, users and applications
  */
 
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/railway-concession';
 
 // Define Schemas
-const stationSchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true },
-    code: { type: String, required: true, unique: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    latitude: { type: Number, default: 0 },
-    longitude: { type: Number, default: 0 },
+const collegeSchema = new mongoose.Schema({
+    collegeId: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    address: { type: String, default: '' },
+    verified: { type: Boolean, default: false },
     created_at: { type: Date, default: Date.now }
 });
 
-const trainSchema = new mongoose.Schema({
-    trainNumber: { type: String, required: true, unique: true },
-    trainName: { type: String, required: true },
-    source: { type: String, required: true },
-    destination: { type: String, required: true },
-    totalSeats: { type: Number, required: true },
-    availableSeats: { type: Number, required: true },
-    departureTime: { type: String, required: true },
-    arrivalTime: { type: String, required: true },
-    fare: { type: Number, required: true },
-    trainType: { type: String, enum: ['Express', 'Passenger', 'Local', 'Superfast'], default: 'Express' },
-    status: { type: String, enum: ['On Time', 'Delayed', 'Cancelled'], default: 'On Time' },
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password_hash: { type: String, required: true },
+    fullName: { type: String, default: '' },
+    collegeId: { type: String, default: '' },
+    role: { type: String, enum: ['student', 'college_admin', 'railway'], default: 'student' },
     created_at: { type: Date, default: Date.now }
+});
+
+const applicationSchema = new mongoose.Schema({
+    applicationId: { type: String, unique: true },
+    studentEmail: { type: String, required: true },
+    studentName: { type: String, required: true },
+    collegeId: { type: String, required: true },
+    reason: { type: String, default: '' },
+    documents: [String],
+    status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+    appliedAt: { type: Date, default: Date.now },
+    decidedAt: { type: Date },
+    decidedBy: { type: String }
 });
 
 // Create Models
-const Station = mongoose.model('Station', stationSchema);
-const Train = mongoose.model('Train', trainSchema);
+const College = mongoose.model('College', collegeSchema);
+const User = mongoose.model('User', userSchema);
+const Application = mongoose.model('Application', applicationSchema);
 
 // Sample Data
-const sampleStations = [
-    { name: 'Delhi Central', code: 'DLI', city: 'Delhi', state: 'Delhi', latitude: 28.6355, longitude: 77.2263 },
-    { name: 'Mumbai Central', code: 'MUM', city: 'Mumbai', state: 'Maharashtra', latitude: 18.9711, longitude: 72.8479 },
-    { name: 'Bangalore City', code: 'BNG', city: 'Bangalore', state: 'Karnataka', latitude: 12.9716, longitude: 77.5946 },
-    { name: 'Kolkata', code: 'KOL', city: 'Kolkata', state: 'West Bengal', latitude: 22.5726, longitude: 88.3639 },
-    { name: 'Chennai Central', code: 'CHE', city: 'Chennai', state: 'Tamil Nadu', latitude: 13.0287, longitude: 80.2058 },
-    { name: 'Hyderabad', code: 'HYD', city: 'Hyderabad', state: 'Telangana', latitude: 17.3850, longitude: 78.4867 },
-    { name: 'Pune', code: 'PUN', city: 'Pune', state: 'Maharashtra', latitude: 18.5204, longitude: 73.8567 },
-    { name: 'Ahmedabad', code: 'AHM', city: 'Ahmedabad', state: 'Gujarat', latitude: 23.0225, longitude: 72.5714 }
-];
-
-const sampleTrains = [
-    {
-        trainNumber: '12001',
-        trainName: 'Shatabdi Express',
-        source: 'Delhi Central',
-        destination: 'Agra Cantt',
-        totalSeats: 400,
-        availableSeats: 350,
-        departureTime: '06:00 AM',
-        arrivalTime: '10:15 AM',
-        fare: 400,
-        trainType: 'Express',
-        status: 'On Time'
-    },
-    {
-        trainNumber: '12002',
-        trainName: 'Rajdhani Express',
-        source: 'Delhi Central',
-        destination: 'Mumbai Central',
-        totalSeats: 500,
-        availableSeats: 480,
-        departureTime: '04:55 PM',
-        arrivalTime: '07:45 AM',
-        fare: 2500,
-        trainType: 'Superfast',
-        status: 'On Time'
-    },
-    {
-        trainNumber: '12003',
-        trainName: 'Karnataka Express',
-        source: 'Delhi Central',
-        destination: 'Bangalore City',
-        totalSeats: 450,
-        availableSeats: 420,
-        departureTime: '03:00 PM',
-        arrivalTime: '09:45 AM',
-        fare: 2000,
-        trainType: 'Express',
-        status: 'On Time'
-    },
-    {
-        trainNumber: '12004',
-        trainName: 'Howrah Mail',
-        source: 'Delhi Central',
-        destination: 'Kolkata',
-        totalSeats: 400,
-        availableSeats: 380,
-        departureTime: '11:00 AM',
-        arrivalTime: '05:20 AM',
-        fare: 1800,
-        trainType: 'Express',
-        status: 'On Time'
-    },
-    {
-        trainNumber: '12005',
-        trainName: 'Coromandel Express',
-        source: 'Mumbai Central',
-        destination: 'Chennai Central',
-        totalSeats: 350,
-        availableSeats: 320,
-        departureTime: '09:00 AM',
-        arrivalTime: '03:30 PM',
-        fare: 1500,
-        trainType: 'Express',
-        status: 'On Time'
-    },
-    {
-        trainNumber: '12006',
-        trainName: 'Deccan Express',
-        source: 'Pune',
-        destination: 'Hyderabad',
-        totalSeats: 300,
-        availableSeats: 280,
-        departureTime: '10:30 PM',
-        arrivalTime: '06:15 AM',
-        fare: 900,
-        trainType: 'Passenger',
-        status: 'Delayed'
-    },
-    {
-        trainNumber: '12007',
-        trainName: 'Gujarat Express',
-        source: 'Mumbai Central',
-        destination: 'Ahmedabad',
-        totalSeats: 350,
-        availableSeats: 340,
-        departureTime: '07:00 PM',
-        arrivalTime: '11:30 PM',
-        fare: 600,
-        trainType: 'Express',
-        status: 'On Time'
-    },
-    {
-        trainNumber: '12008',
-        trainName: 'Bangalore Express',
-        source: 'Bangalore City',
-        destination: 'Hyderabad',
-        totalSeats: 250,
-        availableSeats: 200,
-        departureTime: '11:00 AM',
-        arrivalTime: '05:00 PM',
-        fare: 800,
-        trainType: 'Express',
-        status: 'On Time'
-    }
+const sampleColleges = [
+    { collegeId: 'ABC123', name: 'Alpha Business College', address: '123 Main St, City' },
+    { collegeId: 'DEF456', name: 'Delta Engineering College', address: '456 Elm Rd, City' },
+    { collegeId: 'GHI789', name: 'Gamma Arts College', address: '789 Oak Ave, City' }
 ];
 
 async function seedDatabase() {
@@ -164,20 +59,42 @@ async function seedDatabase() {
         console.log('Connected to MongoDB');
 
         // Clear existing data
-        await Station.deleteMany({});
-        await Train.deleteMany({});
-        console.log('Cleared existing data');
+        await College.deleteMany({});
+        await User.deleteMany({});
+        await Application.deleteMany({});
+        console.log('Cleared existing college/user/application data');
 
-        // Insert sample data
-        await Station.insertMany(sampleStations);
-        console.log('✅ Added', sampleStations.length, 'stations');
+        // Insert sample colleges
+        await College.insertMany(sampleColleges);
+        console.log('✅ Added', sampleColleges.length, 'colleges');
 
-        await Train.insertMany(sampleTrains);
-        console.log('✅ Added', sampleTrains.length, 'trains');
+        // Create sample users
+        const salt = await bcrypt.genSalt(10);
+        const students = [
+            { email: 'student1@example.com', password: await bcrypt.hash('password1', salt), fullName: 'Student One', collegeId: 'ABC123', role: 'student' },
+            { email: 'student2@example.com', password: await bcrypt.hash('password2', salt), fullName: 'Student Two', collegeId: 'DEF456', role: 'student' }
+        ];
+        const admins = [
+            { email: 'admin-abc@example.com', password: await bcrypt.hash('adminpass', salt), fullName: 'ABC Admin', collegeId: 'ABC123', role: 'college_admin' },
+            { email: 'railway@example.com', password: await bcrypt.hash('railpass', salt), fullName: 'Railway Authority', collegeId: '', role: 'railway' }
+        ];
+
+        await User.insertMany([...students, ...admins]);
+        console.log('✅ Added sample users (students and admins)');
+
+        // Create sample applications
+        const app1 = new Application({ applicationId: 'APP' + Date.now(), studentEmail: 'student1@example.com', studentName: 'Student One', collegeId: 'ABC123', reason: 'Semester travel for internship', documents: [] });
+        await app1.save();
+
+        const app2 = new Application({ applicationId: 'APP' + (Date.now()+1), studentEmail: 'student2@example.com', studentName: 'Student Two', collegeId: 'DEF456', reason: 'Home visit during semester break', documents: [] });
+        await app2.save();
+
+        console.log('✅ Added sample applications');
 
         console.log('\n🚀 Database seeded successfully!');
-        console.log('Total Stations:', await Station.countDocuments());
-        console.log('Total Trains:', await Train.countDocuments());
+        console.log('Total Colleges:', await College.countDocuments());
+        console.log('Total Users:', await User.countDocuments());
+        console.log('Total Applications:', await Application.countDocuments());
 
         process.exit(0);
     } catch (err) {

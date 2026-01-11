@@ -22,6 +22,8 @@ let UserModel = null;
 let TrainModel = null;
 let BookingModel = null;
 let StationModel = null;
+let CollegeModel = null;
+let ApplicationModel = null;
 
 async function tryConnectMongo() {
     if (!MONGO_URI) {
@@ -33,17 +35,44 @@ async function tryConnectMongo() {
         await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         console.log('Connected to MongoDB at:', MONGO_URI);
 
-        // User Schema
+        // User Schema (extended for college workflow)
         const userSchema = new mongoose.Schema({
             email: { type: String, required: true, unique: true, lowercase: true },
             password_hash: { type: String, required: true },
             fullName: { type: String, default: '' },
+            collegeId: { type: String, default: '' },
+            role: { type: String, enum: ['student', 'college_admin', 'railway'], default: 'student' },
             phone: { type: String, default: '' },
             created_at: { type: Date, default: Date.now }
         });
         UserModel = mongoose.model('User', userSchema);
 
-        // Station Schema
+        // College Schema
+        const collegeSchema = new mongoose.Schema({
+            collegeId: { type: String, required: true, unique: true },
+            name: { type: String, required: true },
+            address: { type: String, default: '' },
+            verified: { type: Boolean, default: false },
+            created_at: { type: Date, default: Date.now }
+        });
+        CollegeModel = mongoose.model('College', collegeSchema);
+
+        // Application Schema
+        const applicationSchema = new mongoose.Schema({
+            applicationId: { type: String, unique: true },
+            studentEmail: { type: String, required: true },
+            studentName: { type: String, required: true },
+            collegeId: { type: String, required: true },
+            reason: { type: String, default: '' },
+            documents: [String],
+            status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+            appliedAt: { type: Date, default: Date.now },
+            decidedAt: { type: Date },
+            decidedBy: { type: String }
+        });
+        ApplicationModel = mongoose.model('Application', applicationSchema);
+
+        // Station Schema (kept for compatibility)
         const stationSchema = new mongoose.Schema({
             name: { type: String, required: true, unique: true },
             code: { type: String, required: true, unique: true },
@@ -55,7 +84,7 @@ async function tryConnectMongo() {
         });
         StationModel = mongoose.model('Station', stationSchema);
 
-        // Train Schema
+        // Train Schema (kept for compatibility)
         const trainSchema = new mongoose.Schema({
             trainNumber: { type: String, required: true, unique: true },
             trainName: { type: String, required: true },
@@ -72,7 +101,7 @@ async function tryConnectMongo() {
         });
         TrainModel = mongoose.model('Train', trainSchema);
 
-        // Booking Schema
+        // Booking Schema (kept for compatibility)
         const bookingSchema = new mongoose.Schema({
             bookingId: { type: String, unique: true },
             userId: mongoose.Schema.Types.ObjectId,
@@ -143,13 +172,14 @@ async function findUserByEmail(email) {
     return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
 }
 
-async function createUser(email, passwordHash) {
+async function createUser(email, passwordHash, opts = {}) {
+    const { fullName = '', collegeId = '', role = 'student' } = opts;
     if (UserModel) {
-        const doc = new UserModel({ email: email.toLowerCase(), password_hash: passwordHash });
+        const doc = new UserModel({ email: email.toLowerCase(), password_hash: passwordHash, fullName, collegeId, role });
         return await doc.save();
     }
     const users = await readUsersFile();
-    const newUser = { id: Date.now(), email: email.toLowerCase(), password_hash: passwordHash, created_at: new Date() };
+    const newUser = { id: Date.now(), email: email.toLowerCase(), password_hash: passwordHash, fullName, collegeId, role, created_at: new Date() };
     users.push(newUser);
     await writeUsersFile(users);
     return newUser;
@@ -157,8 +187,8 @@ async function createUser(email, passwordHash) {
 
 // --- Routes ---
 app.post(['/api/register', '/signup'], async (req, res) => {
-    const { email, password } = req.body || {};
-    if (!email || !password) return res.status(400).json({ message: 'Email and password are required.' });
+    const { email, password, collegeId, fullName } = req.body || {};
+    if (!email || !password || !collegeId || !fullName) return res.status(400).json({ message: 'Email, password, collegeId and fullName are required.' });
     if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
 
     try {
@@ -167,7 +197,7 @@ app.post(['/api/register', '/signup'], async (req, res) => {
 
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
-        await createUser(email, password_hash);
+        await createUser(email, password_hash, { fullName, collegeId, role: 'student' });
         return res.status(201).json({ message: 'Account created! Please log in.' });
     } catch (err) {
         console.error('Registration error:', err);
@@ -186,7 +216,7 @@ app.post(['/api/login', '/login'], async (req, res) => {
         const match = await bcrypt.compare(password, user.password_hash || user.passwordHash);
         if (!match) return res.status(401).json({ message: 'Invalid credentials.' });
 
-        req.session.user = { email: user.email };
+        req.session.user = { email: user.email, role: user.role || 'student', fullName: user.fullName || user.fullName || '', collegeId: user.collegeId || '' };
         return res.json({ message: 'Login successful.' });
     } catch (err) {
         console.error('Login error:', err);
@@ -211,36 +241,47 @@ app.post('/api/logout', (req, res) => {
 // Get Dashboard Statistics
 app.get('/api/dashboard/stats', requireAuth, async (req, res) => {
     try {
-        if (!TrainModel || !BookingModel) {
-            return res.json({
-                totalTrains: 0,
-                totalBookings: 0,
-                totalPassengers: 0,
-                totalRevenue: 0,
-                occupancyRate: 0
-            });
+        // Keep legacy train/booking stats if models exist
+        const stats = {
+            totalTrains: 0,
+            totalBookings: 0,
+            totalPassengers: 0,
+            totalRevenue: 0,
+            occupancyRate: 0,
+            totalApplications: 0,
+            pendingApplications: 0
+        };
+
+        if (TrainModel) {
+            const trains = await TrainModel.find();
+            stats.totalTrains = await TrainModel.countDocuments();
+            const totalSeats = trains.reduce((sum, t) => sum + t.totalSeats, 0);
+            const availableSeats = trains.reduce((sum, t) => sum + t.availableSeats, 0);
+            stats.occupancyRate = totalSeats > 0 ? ((totalSeats - availableSeats) / totalSeats * 100).toFixed(2) : 0;
         }
 
-        const totalTrains = await TrainModel.countDocuments();
-        const totalBookings = await BookingModel.countDocuments({ userEmail: req.session.user.email });
-        
-        const bookingData = await BookingModel.aggregate([
-            { $match: { userEmail: req.session.user.email } },
-            { $group: { _id: null, totalPassengers: { $sum: '$passengers' }, totalRevenue: { $sum: '$totalFare' } } }
-        ]);
+        if (BookingModel) {
+            stats.totalBookings = await BookingModel.countDocuments({ userEmail: req.session.user.email });
+            const bookingData = await BookingModel.aggregate([
+                { $match: { userEmail: req.session.user.email } },
+                { $group: { _id: null, totalPassengers: { $sum: '$passengers' }, totalRevenue: { $sum: '$totalFare' } } }
+            ]);
+            stats.totalPassengers = bookingData[0]?.totalPassengers || 0;
+            stats.totalRevenue = bookingData[0]?.totalRevenue || 0;
+        }
 
-        const trains = await TrainModel.find();
-        const totalSeats = trains.reduce((sum, t) => sum + t.totalSeats, 0);
-        const availableSeats = trains.reduce((sum, t) => sum + t.availableSeats, 0);
-        const occupancyRate = totalSeats > 0 ? ((totalSeats - availableSeats) / totalSeats * 100).toFixed(2) : 0;
+        if (ApplicationModel) {
+            const userRole = req.session.user.role || 'student';
+            if (userRole === 'student') {
+                stats.totalApplications = await ApplicationModel.countDocuments({ studentEmail: req.session.user.email });
+                stats.pendingApplications = await ApplicationModel.countDocuments({ studentEmail: req.session.user.email, status: 'Pending' });
+            } else {
+                stats.totalApplications = await ApplicationModel.countDocuments();
+                stats.pendingApplications = await ApplicationModel.countDocuments({ status: 'Pending' });
+            }
+        }
 
-        res.json({
-            totalTrains: totalTrains,
-            totalBookings: totalBookings,
-            totalPassengers: bookingData[0]?.totalPassengers || 0,
-            totalRevenue: bookingData[0]?.totalRevenue || 0,
-            occupancyRate: occupancyRate
-        });
+        res.json(stats);
     } catch (err) {
         console.error('Error fetching stats:', err);
         res.status(500).json({ message: 'Error fetching statistics' });
@@ -379,6 +420,95 @@ app.get('/api/bookings', requireAuth, async (req, res) => {
     } catch (err) {
         console.error('Error fetching bookings:', err);
         res.status(500).json({ message: 'Error fetching bookings' });
+    }
+});
+
+// --- APPLICATIONS API ---
+
+// Submit a new application (student)
+app.post('/api/applications', requireAuth, async (req, res) => {
+    try {
+        if (!ApplicationModel) return res.status(503).json({ message: 'MongoDB not connected' });
+        const { collegeId, reason, documents } = req.body || {};
+        const studentEmail = req.session.user.email;
+        const studentName = req.session.user.fullName || req.body.studentName || '';
+        const cid = collegeId || req.session.user.collegeId || '';
+        if (!cid) return res.status(400).json({ message: 'collegeId is required' });
+
+        const applicationId = `APP${Date.now()}`;
+        const appDoc = new ApplicationModel({ applicationId, studentEmail, studentName, collegeId: cid, reason: reason || '', documents: documents || [] });
+        await appDoc.save();
+        res.status(201).json({ message: 'Application submitted', application: appDoc });
+    } catch (err) {
+        console.error('Error submitting application:', err);
+        res.status(500).json({ message: 'Error submitting application' });
+    }
+});
+
+// Get applications (students: own, admins/railway: all or by college)
+app.get('/api/applications', requireAuth, async (req, res) => {
+    try {
+        if (!ApplicationModel) return res.status(503).json({ message: 'MongoDB not connected' });
+        const userRole = req.session.user.role || 'student';
+        const userEmail = req.session.user.email;
+        const { collegeId } = req.query;
+
+        if (userRole === 'student') {
+            const apps = await ApplicationModel.find({ studentEmail }).sort({ appliedAt: -1 });
+            return res.json(apps);
+        }
+
+        // admin/railway
+        const query = {};
+        if (collegeId) query.collegeId = collegeId;
+
+        const apps = await ApplicationModel.find(query).sort({ appliedAt: -1 });
+        res.json(apps);
+    } catch (err) {
+        console.error('Error fetching applications:', err);
+        res.status(500).json({ message: 'Error fetching applications' });
+    }
+});
+
+// Approve an application (college_admin / railway)
+app.post('/api/applications/:id/approve', requireAuth, async (req, res) => {
+    try {
+        const userRole = req.session.user.role || 'student';
+        if (!['college_admin', 'railway'].includes(userRole)) return res.status(403).json({ message: 'Not authorized' });
+        if (!ApplicationModel) return res.status(503).json({ message: 'MongoDB not connected' });
+
+        const app = await ApplicationModel.findOne({ applicationId: req.params.id });
+        if (!app) return res.status(404).json({ message: 'Application not found' });
+
+        app.status = 'Approved';
+        app.decidedAt = new Date();
+        app.decidedBy = req.session.user.email;
+        await app.save();
+        res.json({ message: 'Application approved', application: app });
+    } catch (err) {
+        console.error('Error approving application:', err);
+        res.status(500).json({ message: 'Error approving application' });
+    }
+});
+
+// Reject an application (college_admin / railway)
+app.post('/api/applications/:id/reject', requireAuth, async (req, res) => {
+    try {
+        const userRole = req.session.user.role || 'student';
+        if (!['college_admin', 'railway'].includes(userRole)) return res.status(403).json({ message: 'Not authorized' });
+        if (!ApplicationModel) return res.status(503).json({ message: 'MongoDB not connected' });
+
+        const app = await ApplicationModel.findOne({ applicationId: req.params.id });
+        if (!app) return res.status(404).json({ message: 'Application not found' });
+
+        app.status = 'Rejected';
+        app.decidedAt = new Date();
+        app.decidedBy = req.session.user.email;
+        await app.save();
+        res.json({ message: 'Application rejected', application: app });
+    } catch (err) {
+        console.error('Error rejecting application:', err);
+        res.status(500).json({ message: 'Error rejecting application' });
     }
 });
 

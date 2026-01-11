@@ -270,6 +270,14 @@
                 <h3>Active Trains</h3>
                 <div class="value" id="activeTrains">0</div>
             </div>
+            <div class="stat-card">
+                <h3>Total Applications</h3>
+                <div class="value" id="totalApplications">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Applications</h3>
+                <div class="value" id="pendingApplications">0</div>
+            </div>
         </div>
 
         <!-- Add Train Section -->
@@ -365,6 +373,32 @@
             </div>
         </div>
 
+        <!-- Applications Management -->
+        <div class="section">
+            <h2>📝 Manage Applications</h2>
+            <div id="applicationsMessage"></div>
+
+            <div class="table-container">
+                <table id="applicationsTable">
+                    <thead>
+                        <tr>
+                            <th>Application ID</th>
+                            <th>Student</th>
+                            <th>College ID</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">Loading applications...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Quick Actions -->
         <div class="section">
             <h2>⚙️ Quick Actions</h2>
@@ -411,6 +445,7 @@
             
             loadTrains();
             loadStats();
+            loadApplications();
         });
 
         // Load trains
@@ -451,6 +486,62 @@
                     </td>
                 </tr>
             `).join('');
+        }
+
+        // Load applications
+        async function loadApplications() {
+            try {
+                const response = await fetch('/api/applications');
+                if (response.ok) {
+                    const apps = await response.json();
+                    displayApplications(apps);
+                } else {
+                    showMessage('applicationsMessage', 'Error fetching applications', 'error');
+                }
+            } catch (err) {
+                console.error('Error loading applications:', err);
+                showMessage('applicationsMessage', 'Error loading applications', 'error');
+            }
+        }
+
+        function displayApplications(apps) {
+            const tbody = document.getElementById('applicationsTableBody');
+            if (!apps || apps.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No applications found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = apps.map(a => `
+                <tr>
+                    <td>${a.applicationId}</td>
+                    <td>${a.studentName} <div style="font-size:0.85rem;color:#666">${a.studentEmail}</div></td>
+                    <td>${a.collegeId}</td>
+                    <td>${(a.reason || '').substring(0, 120)}</td>
+                    <td><span class="status-badge ${a.status.toLowerCase()}">${a.status}</span></td>
+                    <td>
+                        ${a.status === 'Pending' ? `<button class="btn btn-primary" style="padding:0.4rem 0.7rem;margin-right:0.5rem" onclick="approveApplication('${a.applicationId}')">Approve</button>
+                        <button class="btn btn-danger" style="padding:0.4rem 0.7rem" onclick="rejectApplication('${a.applicationId}')">Reject</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function approveApplication(id) {
+            if (!confirm('Approve this application?')) return;
+            try {
+                const res = await fetch(`/api/applications/${id}/approve`, { method: 'POST' });
+                if (res.ok) { showMessage('applicationsMessage', 'Application approved', 'success'); loadApplications(); loadStats(); }
+                else { const err = await res.json(); showMessage('applicationsMessage', 'Error: ' + (err.message || 'Could not approve'), 'error'); }
+            } catch (err) { console.error(err); showMessage('applicationsMessage', 'Network error', 'error'); }
+        }
+
+        async function rejectApplication(id) {
+            if (!confirm('Reject this application?')) return;
+            try {
+                const res = await fetch(`/api/applications/${id}/reject`, { method: 'POST' });
+                if (res.ok) { showMessage('applicationsMessage', 'Application rejected', 'success'); loadApplications(); loadStats(); }
+                else { const err = await res.json(); showMessage('applicationsMessage', 'Error: ' + (err.message || 'Could not reject'), 'error'); }
+            } catch (err) { console.error(err); showMessage('applicationsMessage', 'Network error', 'error'); }
         }
 
         // Add train
@@ -532,7 +623,9 @@
                     document.getElementById('totalTrains').textContent = stats.totalTrains;
                     document.getElementById('totalBookings').textContent = stats.totalBookings;
                     document.getElementById('totalRevenue').textContent = '₹' + stats.totalRevenue.toLocaleString('en-IN');
-                    
+                    document.getElementById('totalApplications').textContent = stats.totalApplications || 0;
+                    document.getElementById('pendingApplications').textContent = stats.pendingApplications || 0;
+
                     const onTimeTrains = allTrains.filter(t => t.status === 'On Time').length;
                     document.getElementById('activeTrains').textContent = onTimeTrains;
                 }
